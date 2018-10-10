@@ -5,6 +5,7 @@ services:
     build: ./logstash
     volumes: 
       - ./logstash/pipeline/:/usr/share/logstash/pipeline/
+      - ./logstash/plugins/:/usr/share/logstash/plugins/
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0
     environment:
