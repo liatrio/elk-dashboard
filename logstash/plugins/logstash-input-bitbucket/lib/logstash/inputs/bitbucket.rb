@@ -76,15 +76,15 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
         }
   end
 
-  def handle_projects_response(queue, name, request, response, execurtion_time)
+  def handle_projects_response(queue, name, request, response, execution_time)
 
   end
 
-  def handle_repos_response(queue, name, request, response, execurtion_time)
+  def handle_repos_response(queue, name, request, response, execution_time)
 
   end
 
-  def handle_pull_requests_response(queue, name, request, response, execurtion_time)
+  def handle_pull_requests_response(queue, name, request, response, execution_time)
 
   end
 
