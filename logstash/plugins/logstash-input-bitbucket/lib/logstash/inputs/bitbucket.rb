@@ -39,11 +39,12 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
 
   def register
     @host = Socket.gethostname.force_encoding(Encoding::UTF_8)
-
+    @authorization = "Bearer #{@token}"
     @logger.info('Register BitBucket Input', :schedule => @schedule, :hostname => @hostname, :port => @port)
   end # def register
 
   def run(queue)
+    @logger.info('RUN')
     #schedule hash must contain exactly one of the allowed keys
     msg_invalid_schedule = "Invalid config. schedule hash must contain " +
         "exactly one of the following keys - cron, at, every or in"
@@ -60,32 +61,40 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
   end # def run
 
   def run_once(queue)
+    @logger.info('RUN ONCE')
+    request_async(queue, [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects', Hash[:headers => {'Authorization' => @authorization}]], 'handle_projects_response')
 
+    client.execute!
   end
 
   private
-  def request_async(queue, name, request, callback)
-    @logger.debug? && @logger.debug("Fetching URL", :name => name, :url => request)
+  def request_async(queue, request, callback)
+    @logger.info("Fetching URL", :url => request)
     started = Time.now
 
     method, *request_opts = request
+    @logger.info("Async send", :method => method, :request => request_opts)
     client.async.send(method, *request_opts).
-        on_success {|response| self.send(callback, queue, name, request, response, Time.now - started)}.
+        on_success {|response| self.send(callback, queue, request, response, Time.now - started)}.
         on_failure {|exception|
-          handle_failure(queue, name, request, exception, Time.now - started)
+          handle_failure(queue, request, exception, Time.now - started)
         }
   end
 
-  def handle_projects_response(queue, name, request, response, execution_time)
+  def handle_projects_response(queue, request, response, execution_time)
+    @logger.info('HANDLE PROJECTS RESPONSE', :headers => response.headers, :body => response.body)
+  end
+
+  def handle_repos_response(queue, request, response, execution_time)
 
   end
 
-  def handle_repos_response(queue, name, request, response, execution_time)
+  def handle_pull_requests_response(queue, request, response, execution_time)
 
   end
 
-  def handle_pull_requests_response(queue, name, request, response, execution_time)
-
+  def handle_failure(queue, request, exception, execution_time)
+    @logger.error('HTTP Request failed', :request => request, :exception => exception);
   end
 
   def stop
