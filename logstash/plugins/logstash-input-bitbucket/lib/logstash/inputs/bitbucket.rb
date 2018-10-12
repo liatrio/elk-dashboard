@@ -1,6 +1,7 @@
 # encoding: utf-8
 require "logstash/inputs/base"
 require 'logstash/plugin_mixins/http_client'
+require 'logstash/json'
 require "stud/interval"
 require "socket" # for Socket.gethostname
 require "rufus/scheduler"
@@ -62,8 +63,15 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
 
   def run_once(queue)
     @logger.info('RUN ONCE')
-    request_async(queue, [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects', Hash[:headers => {'Authorization' => @authorization}]], 'handle_projects_response')
+    # request_async(queue, [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects', Hash[:headers => {'Authorization' => @authorization}]], 'handle_projects_response')
+    #
+    # client.execute!
 
+    request_async(
+        queue,
+        [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects/AN/repos',
+         Hash[:headers => {'Authorization' => @authorization}]],
+        'handle_repos_response')
     client.execute!
   end
 
@@ -86,7 +94,14 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
   end
 
   def handle_repos_response(queue, request, response, execution_time)
-
+    @logger.info("HANDLE REPOS RESPONSE", :body => response.body)
+    decoded = LogStash::Json.load(response.body)
+    @logger.info("HANDLE REPOS RESPONSE", :decoded =>decoded)
+    @logger.info("HANDLE REPOS RESPONSE", :foo => decoded['size'])
+    # @codec.decode(response.body) do |json|
+    #   @logger.info("HANDLE REPOS RESPONSE YIELD", :json => json.to_hash)
+    #   @logger.info("HANDLE REPOS RESPONSE", :size => json.get('size'))
+    # end
   end
 
   def handle_pull_requests_response(queue, request, response, execution_time)
@@ -104,4 +119,10 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
     #  * cleanup temporary files
     #  * terminate spawned threads
   end
+
+  def decode_and_flush(codec, body, &yielder)
+    codec.decode(body, &yielder)
+    codec.flush(&yielder)
+  end
+
 end # class LogStash::Inputs::Bitbucket
