@@ -1,0 +1,8 @@
+version: '2.2'
+services:
+  logstash:
+    image: liatrio-logstash
+    build: ./logstash
+    volumes: 
+      - ./logstash/pipeline/:/usr/share/logstash/pipeline/
+      - ./logstash/plugins/:/usr/share/logstash/plugins/
