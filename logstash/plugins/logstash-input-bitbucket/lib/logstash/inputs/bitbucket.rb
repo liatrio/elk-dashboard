@@ -4,6 +4,9 @@ require 'logstash/plugin_mixins/http_client'
 require "stud/interval"
 require "socket" # for Socket.gethostname
 require "rufus/scheduler"
+require "json"
+require "ostruct"
+
 
 # Generate a repeating message.
 #
@@ -82,10 +85,37 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
   end
 
   def handle_projects_response(queue, request, response, execution_time)
-    @logger.info('HANDLE PROJECTS RESPONSE', :headers => response.headers, :body => response.body)
+    #@logger.info('HANDLE PROJECTS RESPONSE', :headers => response.headers, :body => response.body)
+    obj = JSON.parse(response.body)
+
+    size = obj["size"]
+    values = obj.values.size
+    work = obj['values'][0]['key']
+
+    obj['values'].each do |value|
+      #@logger.info('key info = ', :key => value['key'])
+
+      request_async(queue, [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/#{value['key']}/repos", Hash[:headers => {'Authorization' => @authorization}]], 'handle_repos_response')
+
+      #request_async(queue, [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects/AN/repos', Hash[:headers => {'Authorization' => @authorization}]], 'handle_repos_response')
+
+    end
+
+    client.execute!
+
+
+    #@logger.info('values = ', :val => values)
+    #@logger.info('size = ', :size => size)
+    #@logger.info('work = ', :work => work)
+
+    #request_async(queue, [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects/UB/repos', Hash[:headers => {'Authorization' => @authorization}]], 'handle_projects_response')
+
+
   end
 
   def handle_repos_response(queue, request, response, execution_time)
+    @logger.info('HANDLE REPOS RESPONSE', :headers => response.headers, :body => response.body)
+
 
   end
 
