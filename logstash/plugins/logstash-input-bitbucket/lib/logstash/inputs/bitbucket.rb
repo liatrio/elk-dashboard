@@ -43,24 +43,28 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
     @host = Socket.gethostname.force_encoding(Encoding::UTF_8)
     @authorization = "Bearer #{@token}"
     @logger.info('Register BitBucket Input', :schedule => @schedule, :hostname => @hostname, :port => @port)
-  end # def register
+  end
+
+  # def register
 
   def run(queue)
     @logger.info('RUN')
     #schedule hash must contain exactly one of the allowed keys
     msg_invalid_schedule = "Invalid config. schedule hash must contain " +
         "exactly one of the following keys - cron, at, every or in"
-    raise Logstash::ConfigurationError, msg_invalid_schedule if @schedule.keys.length !=1
+    raise Logstash::ConfigurationError, msg_invalid_schedule if @schedule.keys.length != 1
     schedule_type = @schedule.keys.first
     schedule_value = @schedule[schedule_type]
     raise LogStash::ConfigurationError, msg_invalid_schedule unless Schedule_types.include?(schedule_type)
 
     @scheduler = Rufus::Scheduler.new(:max_work_threads => 1)
     #as of v3.0.9, :first_in => :now doesn't work. Use the following workaround instead
-    opts = schedule_type == "every" ? { :first_in => 0.01 } : {}
-    @scheduler.send(schedule_type, schedule_value, opts) { run_once(queue) }
+    opts = schedule_type == "every" ? {:first_in => 0.01} : {}
+    @scheduler.send(schedule_type, schedule_value, opts) {run_once(queue)}
     @scheduler.join
-  end # def run
+  end
+
+  # def run
 
   def run_once(queue)
     @logger.info('RUN ONCE')
@@ -70,7 +74,7 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
 
     request_async(
         queue,
-        [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects/SOCK/repos?limit=3',
+        [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects/SOCK/repos?start=0',
          Hash[:headers => {'Authorization' => @authorization}]],
         'handle_repos_response')
     client.execute!
@@ -78,11 +82,10 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
 
   private
   def request_async(queue, request, callback)
-    @logger.info("Fetching URL", :url => request)
+    @logger.info("Fetching URL", :request => request)
     started = Time.now
 
     method, *request_opts = request
-    @logger.info("Async send", :method => method, :request => request_opts)
     client.async.send(method, *request_opts).
         on_success {|response| self.send(callback, queue, request, response, Time.now - started)}.
         on_failure {|exception|
@@ -91,39 +94,42 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
   end
 
   def handle_projects_response(queue, request, response, execution_time)
-    @logger.info('HANDLE PROJECTS RESPONSE', :headers => response.headers, :body => response.body)
+    @logger.info('HANDLE PROJECTS RESPONSE', :body => response.body)
   end
 
+  # Process response from get repos API request
   def handle_repos_response(queue, request, response, execution_time)
-    # @logger.info("HANDLE REPOS RESPONSE", :body => response.body)
+    # Decode JSON
     decoded = LogStash::Json.load(response.body)
-    # @logger.info("HANDLE REPOS RESPONSE", :decoded =>decoded)
-    # @logger.info("HANDLE REPOS RESPONSE", :foo => decoded['values'])
 
-    values = decoded.delete('values')
-    @logger.info("GNDN", :decoded => decoded)
+    @logger.info("Handle Repos Response", :request => request, :start => decoded['start'], :size => decoded['size'])
 
-    # if decoded['isLastPage'] == false
-    #   request_async(
-    #       queue,
-    #       [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/SOCK/repos?limit=3&start=#{decoded['nextPageStart']}"],
-    #       'handle_repos_response'
-    #   )
-    # end
+    # Fetch addition repo pages
+    unless decoded['isLastPage']
+      request_async(
+          queue,
+          [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/SOCK/repos?start=#{decoded['nextPageStart']}"],
+          'handle_repos_response'
+      )
+    end
 
-    values.each { |repo|
-      @logger.info("REPO", :repo => repo)
+    # Iterate over each repo
+    decoded['values'].each { |repo|
+      @logger.info("Add repo", :project => repo['project']['name'], :repo => repo['name'])
+
+      # Send get pull requests request
       request_async(
           queue,
           [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/#{repo['project']['key']}/repos/#{repo['slug']}/pull-requests?state=ALL", Hash[:headers => {'Authorization' => @authorization}]],
           'handle_pull_requests_response')
+
+      # Push repo event into queue
       event = LogStash::Event.new(repo)
-      @logger.info("REPO EVENT", :event => event)
       queue << event
     }
 
+    # Send HTTP requests
     client.execute!
-
   end
 
   def handle_pull_requests_response(queue, request, response, execution_time)
