@@ -68,15 +68,9 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
 
   def run_once(queue)
     @logger.info('RUN ONCE')
-    # request_async(queue, [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects', Hash[:headers => {'Authorization' => @authorization}]], 'handle_projects_response')
-    #
-    # client.execute!
 
-    request_async(
-        queue,
-        [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects/SOCK/repos?start=0',
-         Hash[:headers => {'Authorization' => @authorization}]],
-        'handle_repos_response')
+    request_async(queue, [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects', Hash[:headers => {'Authorization' => @authorization}]], 'handle_projects_response')
+
     client.execute!
   end
 
