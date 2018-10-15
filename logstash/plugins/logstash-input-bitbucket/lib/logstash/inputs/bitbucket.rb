@@ -45,8 +45,6 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
     @logger.info('Register BitBucket Input', :schedule => @schedule, :hostname => @hostname, :port => @port)
   end
 
-  # def register
-
   def run(queue)
     @logger.info('RUN')
     #schedule hash must contain exactly one of the allowed keys
@@ -63,8 +61,6 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
     @scheduler.send(schedule_type, schedule_value, opts) {run_once(queue)}
     @scheduler.join
   end
-
-  # def run
 
   def run_once(queue)
     @logger.info('RUN ONCE')
