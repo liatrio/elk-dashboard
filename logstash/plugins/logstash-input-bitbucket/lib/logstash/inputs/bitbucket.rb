@@ -1,6 +1,7 @@
 # encoding: utf-8
 require "logstash/inputs/base"
 require 'logstash/plugin_mixins/http_client'
+require 'logstash/event'
 require 'logstash/json'
 require "stud/interval"
 require "socket" # for Socket.gethostname
@@ -69,7 +70,7 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
 
     request_async(
         queue,
-        [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects/AN/repos',
+        [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects/SOCK/repos?limit=3',
          Hash[:headers => {'Authorization' => @authorization}]],
         'handle_repos_response')
     client.execute!
@@ -94,22 +95,45 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
   end
 
   def handle_repos_response(queue, request, response, execution_time)
-    @logger.info("HANDLE REPOS RESPONSE", :body => response.body)
+    # @logger.info("HANDLE REPOS RESPONSE", :body => response.body)
     decoded = LogStash::Json.load(response.body)
-    @logger.info("HANDLE REPOS RESPONSE", :decoded =>decoded)
-    @logger.info("HANDLE REPOS RESPONSE", :foo => decoded['size'])
-    # @codec.decode(response.body) do |json|
-    #   @logger.info("HANDLE REPOS RESPONSE YIELD", :json => json.to_hash)
-    #   @logger.info("HANDLE REPOS RESPONSE", :size => json.get('size'))
+    # @logger.info("HANDLE REPOS RESPONSE", :decoded =>decoded)
+    # @logger.info("HANDLE REPOS RESPONSE", :foo => decoded['values'])
+
+    values = decoded.delete('values')
+    @logger.info("GNDN", :decoded => decoded)
+
+    # if decoded['isLastPage'] == false
+    #   request_async(
+    #       queue,
+    #       [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/SOCK/repos?limit=3&start=#{decoded['nextPageStart']}"],
+    #       'handle_repos_response'
+    #   )
     # end
+
+    values.each { |repo|
+      @logger.info("REPO", :repo => repo)
+      request_async(
+          queue,
+          [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/#{repo['project']['key']}/repos/#{repo['slug']}/pull-requests?state=ALL", Hash[:headers => {'Authorization' => @authorization}]],
+          'handle_pull_requests_response')
+      event = LogStash::Event.new(repo)
+      @logger.info("REPO EVENT", :event => event)
+      queue << event
+    }
+
+    client.execute!
+
   end
 
   def handle_pull_requests_response(queue, request, response, execution_time)
+    @logger.info("HANDLE PULL REQUESTS RESPONSE")
+    # @logger.info("HANDLE PULL REQUESTS RESPONSE", :body => response.body)
 
   end
 
   def handle_failure(queue, request, exception, execution_time)
-    @logger.error('HTTP Request failed', :request => request, :exception => exception);
+    @logger.error('HTTP Request failed', :request => request, :exception => exception, :backtrace => exception.backtrace);
   end
 
   def stop
