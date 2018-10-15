@@ -6,6 +6,9 @@ require 'logstash/json'
 require "stud/interval"
 require "socket" # for Socket.gethostname
 require "rufus/scheduler"
+require "json"
+require "ostruct"
+
 
 # Generate a repeating message.
 #
@@ -84,7 +87,16 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
   end
 
   def handle_projects_response(queue, request, response, execution_time)
-    @logger.info('HANDLE PROJECTS RESPONSE', :body => response.body)
+    #@logger.info('HANDLE PROJECTS RESPONSE', :headers => response.headers, :body => response.body)
+    obj = JSON.parse(response.body)
+
+    obj['values'].each do |project|
+      request_async(queue, [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/#{project['key']}/repos", Hash[:headers => {'Authorization' => @authorization}]], 'handle_repos_response')
+      event = LogStash::Event.new(project)
+      @logger.info("PROJECT EVENT", :event => event)
+      queue << event
+    end
+    client.execute!
   end
 
   # Process response from get repos API request
