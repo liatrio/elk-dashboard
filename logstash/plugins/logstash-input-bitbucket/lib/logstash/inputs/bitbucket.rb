@@ -1,6 +1,8 @@
 # encoding: utf-8
 require "logstash/inputs/base"
 require 'logstash/plugin_mixins/http_client'
+require 'logstash/event'
+require 'logstash/json'
 require "stud/interval"
 require "socket" # for Socket.gethostname
 require "rufus/scheduler"
@@ -41,27 +43,28 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
     @host = Socket.gethostname.force_encoding(Encoding::UTF_8)
     @authorization = "Bearer #{@token}"
     @logger.info('Register BitBucket Input', :schedule => @schedule, :hostname => @hostname, :port => @port)
-  end # def register
+  end
 
   def run(queue)
     @logger.info('RUN')
     #schedule hash must contain exactly one of the allowed keys
     msg_invalid_schedule = "Invalid config. schedule hash must contain " +
         "exactly one of the following keys - cron, at, every or in"
-    raise Logstash::ConfigurationError, msg_invalid_schedule if @schedule.keys.length !=1
+    raise Logstash::ConfigurationError, msg_invalid_schedule if @schedule.keys.length != 1
     schedule_type = @schedule.keys.first
     schedule_value = @schedule[schedule_type]
     raise LogStash::ConfigurationError, msg_invalid_schedule unless Schedule_types.include?(schedule_type)
 
     @scheduler = Rufus::Scheduler.new(:max_work_threads => 1)
     #as of v3.0.9, :first_in => :now doesn't work. Use the following workaround instead
-    opts = schedule_type == "every" ? { :first_in => 0.01 } : {}
-    @scheduler.send(schedule_type, schedule_value, opts) { run_once(queue) }
+    opts = schedule_type == "every" ? {:first_in => 0.01} : {}
+    @scheduler.send(schedule_type, schedule_value, opts) {run_once(queue)}
     @scheduler.join
-  end # def run
+  end
 
   def run_once(queue)
     @logger.info('RUN ONCE')
+
     request_async(queue, [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects', Hash[:headers => {'Authorization' => @authorization}]], 'handle_projects_response')
 
     client.execute!
@@ -69,11 +72,10 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
 
   private
   def request_async(queue, request, callback)
-    @logger.info("Fetching URL", :url => request)
+    @logger.info("Fetching URL", :request => request)
     started = Time.now
 
     method, *request_opts = request
-    @logger.info("Async send", :method => method, :request => request_opts)
     client.async.send(method, *request_opts).
         on_success {|response| self.send(callback, queue, request, response, Time.now - started)}.
         on_failure {|exception|
@@ -82,19 +84,52 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
   end
 
   def handle_projects_response(queue, request, response, execution_time)
-    @logger.info('HANDLE PROJECTS RESPONSE', :headers => response.headers, :body => response.body)
+    @logger.info('HANDLE PROJECTS RESPONSE', :body => response.body)
   end
 
+  # Process response from get repos API request
   def handle_repos_response(queue, request, response, execution_time)
+    # Decode JSON
+    decoded = LogStash::Json.load(response.body)
 
+    @logger.info("Handle Repos Response", :request => request, :start => decoded['start'], :size => decoded['size'])
+
+    # Fetch addition repo pages
+    unless decoded['isLastPage']
+      request_async(
+          queue,
+          [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/SOCK/repos?start=#{decoded['nextPageStart']}"],
+          'handle_repos_response'
+      )
+    end
+
+    # Iterate over each repo
+    decoded['values'].each { |repo|
+      @logger.info("Add repo", :project => repo['project']['name'], :repo => repo['name'])
+
+      # Send get pull requests request
+      request_async(
+          queue,
+          [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/#{repo['project']['key']}/repos/#{repo['slug']}/pull-requests?state=ALL", Hash[:headers => {'Authorization' => @authorization}]],
+          'handle_pull_requests_response')
+
+      # Push repo event into queue
+      event = LogStash::Event.new(repo)
+      queue << event
+    }
+
+    # Send HTTP requests
+    client.execute!
   end
 
   def handle_pull_requests_response(queue, request, response, execution_time)
+    @logger.info("HANDLE PULL REQUESTS RESPONSE")
+    # @logger.info("HANDLE PULL REQUESTS RESPONSE", :body => response.body)
 
   end
 
   def handle_failure(queue, request, exception, execution_time)
-    @logger.error('HTTP Request failed', :request => request, :exception => exception);
+    @logger.error('HTTP Request failed', :request => request, :exception => exception, :backtrace => exception.backtrace);
   end
 
   def stop
@@ -104,4 +139,5 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
     #  * cleanup temporary files
     #  * terminate spawned threads
   end
+
 end # class LogStash::Inputs::Bitbucket
