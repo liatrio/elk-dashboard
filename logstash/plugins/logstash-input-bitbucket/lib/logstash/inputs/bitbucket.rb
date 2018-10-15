@@ -140,9 +140,4 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
     #  * terminate spawned threads
   end
 
-  def decode_and_flush(codec, body, &yielder)
-    codec.decode(body, &yielder)
-    codec.flush(&yielder)
-  end
-
 end # class LogStash::Inputs::Bitbucket
