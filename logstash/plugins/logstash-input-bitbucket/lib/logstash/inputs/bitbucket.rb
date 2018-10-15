@@ -88,29 +88,13 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
     #@logger.info('HANDLE PROJECTS RESPONSE', :headers => response.headers, :body => response.body)
     obj = JSON.parse(response.body)
 
-    size = obj["size"]
-    values = obj.values.size
-    work = obj['values'][0]['key']
-
-    obj['values'].each do |value|
-      #@logger.info('key info = ', :key => value['key'])
-
-      request_async(queue, [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/#{value['key']}/repos", Hash[:headers => {'Authorization' => @authorization}]], 'handle_repos_response')
-
-      #request_async(queue, [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects/AN/repos', Hash[:headers => {'Authorization' => @authorization}]], 'handle_repos_response')
-
+    obj['values'].each do |project|
+      request_async(queue, [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/#{project['key']}/repos", Hash[:headers => {'Authorization' => @authorization}]], 'handle_repos_response')
+      event = LogStash::Event.new(project)
+      @logger.info("PROJECT EVENT", :event => event)
+      queue << event
     end
-
     client.execute!
-
-
-    #@logger.info('values = ', :val => values)
-    #@logger.info('size = ', :size => size)
-    #@logger.info('work = ', :work => work)
-
-    #request_async(queue, [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects/UB/repos', Hash[:headers => {'Authorization' => @authorization}]], 'handle_projects_response')
-
-
   end
 
   def handle_repos_response(queue, request, response, execution_time)
