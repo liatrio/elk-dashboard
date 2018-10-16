@@ -32,6 +32,8 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
   # See: rufus/scheduler for details about different schedule options and value string format
   config :schedule, :validate => :hash, :required => true
 
+  config :scheme, :validate => :string, :default => 'http'
+
   config :hostname, :validate => :string, :default => 'localhost'
 
   config :port, :validate => :number, :default => 80
@@ -68,80 +70,182 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
   def run_once(queue)
     @logger.info('RUN ONCE')
 
-    request_async(queue, [:get, 'http://bitbucket.liatr.io/rest/api/1.0/projects', Hash[:headers => {'Authorization' => @authorization}]], 'handle_projects_response')
+    request_async(
+        queue,
+        'rest/api/1.0/projects',
+        {},
+        {},
+        'handle_projects_response')
+
+    # request_async(
+    #   queue,
+    #   "rest/api/1.0/projects/%{project}/repos",
+    #   {:project => 'SOCK', :start => 0},
+    #   {:headers => {'Authorization' => @authorization}},
+    #   'handle_repos_response')
 
     client.execute!
   end
 
   private
-  def request_async(queue, request, callback)
-    @logger.info("Fetching URL", :request => request)
+  def request_async(queue, path, parameters, request_options, callback)
     started = Time.now
 
-    method, *request_opts = request
-    client.async.send(method, *request_opts).
-        on_success {|response| self.send(callback, queue, request, response, Time.now - started)}.
+    method = parameters[:method] ? parameters.delete(:method) : :get
+
+    uri = "#{@scheme}://#{@hostname}/#{path}" % parameters
+
+    request_options[:headers] = {'Authorization' => @authorization}
+
+    @logger.info("Fetching URL", :method => method, :request => uri)
+
+    client.parallel.send(method, uri, request_options).
+        on_success {|response| self.send(callback, queue, uri, parameters, response, Time.now - started)}.
         on_failure {|exception|
-          handle_failure(queue, request, exception, Time.now - started)
+          handle_failure(queue, uri, parameters, exception, Time.now - started)
         }
   end
 
-  def handle_projects_response(queue, request, response, execution_time)
-    #@logger.info('HANDLE PROJECTS RESPONSE', :headers => response.headers, :body => response.body)
-    obj = JSON.parse(response.body)
+  def handle_projects_response(queue, uri, parameters, response, execution_time)
+    # Decode JSON
+    body = JSON.parse(response.body)
 
-    obj['values'].each do |project|
-      request_async(queue, [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/#{project['key']}/repos", Hash[:headers => {'Authorization' => @authorization}]], 'handle_repos_response')
+    @logger.info("Handle Projects Response", :uri => uri, :start => body['start'], :size => body['size'])
+
+    request_count = 0
+
+    # Fetch addition project pages
+    unless body['isLastPage']
+      request_async(
+          queue,
+          "rest/api/1.0/projects",
+          {},
+          {:queue => {'start' => body['nextPageStart']}},
+          'handle_projects_response'
+      )
+
+      client.execute!
+    end
+
+    # Iterate over each project
+    body['values'].each do |project|
+      @logger.info("Add project", :project => project['key'])
+
+      # Send get repos request
+      request_async(
+          queue,
+          "rest/api/1.0/projects/%{project}/repos",
+          {:project => project['key']},
+          {},
+          'handle_repos_response')
+
+      request_count += 1
+
+      if request_count > 1
+        request_count = 0
+        client.execute!
+      end
+
+      # Push project event into queue
       event = LogStash::Event.new(project)
-      @logger.info("PROJECT EVENT", :event => event)
+      event.set('[@metadata][index]', 'project')
+      event.set('[@metadata][id]', project['id'])
       queue << event
     end
-    client.execute!
+
+    if request_count > 0
+      # Send HTTP requests
+      client.execute!
+    end
   end
 
   # Process response from get repos API request
-  def handle_repos_response(queue, request, response, execution_time)
+  def handle_repos_response(queue, uri, parameters, response, execution_time)
     # Decode JSON
-    decoded = LogStash::Json.load(response.body)
+    body = JSON.parse(response.body)
 
-    @logger.info("Handle Repos Response", :request => request, :start => decoded['start'], :size => decoded['size'])
+    @logger.info("Handle Repos Response", :uri => uri, :project => parameters[:project], :start => body['start'], :size => body['size'])
+
+    request_count = 0
 
     # Fetch addition repo pages
-    unless decoded['isLastPage']
+    unless body['isLastPage']
       request_async(
           queue,
-          [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/SOCK/repos?start=#{decoded['nextPageStart']}"],
+          "rest/api/1.0/projects/%{project}/repos",
+        {:project => parameters[:project]},
+          {:queue => {'start' => body['nextPageStart']}},
           'handle_repos_response'
       )
+
+      client.execute!
     end
 
     # Iterate over each repo
-    decoded['values'].each { |repo|
-      @logger.info("Add repo", :project => repo['project']['name'], :repo => repo['name'])
+    body['values'].each { |repo|
+      @logger.info("Add repo", :project => parameters[:project], :repo => repo['slug'])
 
       # Send get pull requests request
       request_async(
           queue,
-          [:get, "http://bitbucket.liatr.io/rest/api/1.0/projects/#{repo['project']['key']}/repos/#{repo['slug']}/pull-requests?state=ALL", Hash[:headers => {'Authorization' => @authorization}]],
+          "rest/api/1.0/projects/%{project}/repos/%{repo}/pull-requests",
+          {:project => parameters[:project], :repo => repo['slug']},
+          {:query => {'state' => 'ALL'}},
           'handle_pull_requests_response')
+
+      request_count +=1
+
+      if request_count > 1
+        request_count = 0
+        client.execute!
+      end
 
       # Push repo event into queue
       event = LogStash::Event.new(repo)
+      event.set("[@metadata][index]", "repo")
+      event.set("[@metadata][id]", repo['id'])
       queue << event
     }
 
-    # Send HTTP requests
-    client.execute!
+    if request_count > 0
+      # Send HTTP requests
+      client.execute!
+    end
   end
 
-  def handle_pull_requests_response(queue, request, response, execution_time)
-    @logger.info("HANDLE PULL REQUESTS RESPONSE")
-    # @logger.info("HANDLE PULL REQUESTS RESPONSE", :body => response.body)
+  def handle_pull_requests_response(queue, uri, parameters, response, execution_time)
+    # Decode JSON
+    body = JSON.parse(response.body)
 
+    @logger.info("Handle Pull Requests Response", :uri => uri, :project => parameters[:project], :repo => parameters[:repo], :start => body['start'], :size => body['size'])
+
+    # Fetch addition pull request pages
+    unless body['isLastPage']
+      request_async(
+          queue,
+          "rest/api/1.0/projects/%{project}/repos/%{repo}/pull-requests",
+          {:project => parameters[:project], :repo => parameters[:repo]},
+          {:query => {'state' => 'ALL', 'start' => body['nextPageStart']}},
+          'handle_pull_requests_response')
+
+      # Send HTTP requests
+      client.execute!
+    end
+
+    # Iterate over each pull request
+    body['values'].each { |pull_request|
+      @logger.info("Add Pull Request", :project => parameters[:project], :repo => parameters[:repo], :pull_request => pull_request['title'])
+
+      # Push repo event into queue
+      event = LogStash::Event.new(pull_request)
+      event.set("[@metadata][index]", "pull_request")
+      event.set("[@metadata][id]", "#{pull_request['toRef']['repository']['project']['id']}-#{pull_request['toRef']['repository']['id']}-#{pull_request['id']}")
+      queue << event
+    }
   end
 
-  def handle_failure(queue, request, exception, execution_time)
-    @logger.error('HTTP Request failed', :request => request, :exception => exception, :backtrace => exception.backtrace);
+  def handle_failure(queue, path, parameters, exception, execution_time)
+    @logger.error('HTTP Request failed', :path => path, :parameters => parameters, :exception => exception, :backtrace => exception.backtrace);
   end
 
   def stop
