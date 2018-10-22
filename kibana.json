@@ -88,31 +88,6 @@
     }
   },
   {
-    "_id": "36d6add0-d3cf-11e8-b491-d195e4bbf555",
-    "_type": "dashboard",
-    "_source": {
-      "title": "Pull Requests",
-      "hits": 0,
-      "description": "Number of pull requests and their state",
-      "panelsJSON": "[{\"embeddableConfig\":{},\"gridData\":{\"x\":0,\"y\":21,\"w\":24,\"h\":22,\"i\":\"1\"},\"id\":\"2c788430-d320-11e8-b491-d195e4bbf555\",\"panelIndex\":\"1\",\"type\":\"visualization\",\"version\":\"6.4.0\"},{\"embeddableConfig\":{},\"gridData\":{\"x\":0,\"y\":0,\"w\":48,\"h\":21,\"i\":\"2\"},\"id\":\"e1d6e010-d320-11e8-b491-d195e4bbf555\",\"panelIndex\":\"2\",\"type\":\"visualization\",\"version\":\"6.4.0\"},{\"embeddableConfig\":{},\"gridData\":{\"x\":24,\"y\":21,\"w\":24,\"h\":22,\"i\":\"4\"},\"id\":\"731ee530-d327-11e8-b491-d195e4bbf555\",\"panelIndex\":\"4\",\"type\":\"visualization\",\"version\":\"6.4.0\"}]",
-      "optionsJSON": "{\"darkTheme\":false,\"hidePanelTitles\":false,\"useMargins\":true}",
-      "version": 1,
-      "timeRestore": true,
-      "timeTo": "now",
-      "timeFrom": "now-1y",
-      "refreshInterval": {
-        "pause": true,
-        "value": 5000
-      },
-      "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"query\":{\"language\":\"lucene\",\"query\":\"\"},\"filter\":[]}"
-      }
-    },
-    "_meta": {
-      "savedObjectVersion": 2
-    }
-  },
-  {
     "_id": "22d610b0-d3f6-11e8-a298-13f8911f0caa",
     "_type": "visualization",
     "_source": {
@@ -147,14 +122,56 @@
     }
   },
   {
+    "_id": "ce6f1400-d61a-11e8-a298-13f8911f0caa",
+    "_type": "visualization",
+    "_source": {
+      "title": "Project / Repo Select",
+      "visState": "{\"title\":\"Project / Repo Select\",\"type\":\"input_control_vis\",\"params\":{\"controls\":[{\"id\":\"1540227075596\",\"indexPattern\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"fieldName\":\"fromRef.repository.project.name.keyword\",\"parent\":\"\",\"label\":\"Project\",\"type\":\"list\",\"options\":{\"type\":\"terms\",\"multiselect\":true,\"dynamicOptions\":true,\"size\":5,\"order\":\"desc\"}},{\"id\":\"1540226962344\",\"indexPattern\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"fieldName\":\"toRef.repository.name.keyword\",\"parent\":\"\",\"label\":\"Repo\",\"type\":\"list\",\"options\":{\"type\":\"terms\",\"multiselect\":true,\"dynamicOptions\":true,\"size\":5,\"order\":\"desc\"}},{\"id\":\"1540227337428\",\"indexPattern\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"fieldName\":\"author.user.name.keyword\",\"parent\":\"\",\"label\":\"Author\",\"type\":\"list\",\"options\":{\"type\":\"terms\",\"multiselect\":true,\"dynamicOptions\":true,\"size\":5,\"order\":\"desc\"}},{\"id\":\"1540227384150\",\"indexPattern\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"fieldName\":\"state.keyword\",\"parent\":\"\",\"label\":\"Pull Request State\",\"type\":\"list\",\"options\":{\"type\":\"terms\",\"multiselect\":true,\"dynamicOptions\":true,\"size\":5,\"order\":\"desc\"}}],\"updateFiltersOnChange\":false,\"useTimeFilter\":false,\"pinFilters\":false},\"aggs\":[]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"lucene\"},\"filter\":[]}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "36d6add0-d3cf-11e8-b491-d195e4bbf555",
+    "_type": "dashboard",
+    "_source": {
+      "title": "Pull Requests",
+      "hits": 0,
+      "description": "Number of pull requests and their state",
+      "panelsJSON": "[{\"embeddableConfig\":{},\"gridData\":{\"x\":9,\"y\":0,\"w\":20,\"h\":22,\"i\":\"1\"},\"id\":\"2c788430-d320-11e8-b491-d195e4bbf555\",\"panelIndex\":\"1\",\"type\":\"visualization\",\"version\":\"6.4.0\"},{\"embeddableConfig\":{},\"gridData\":{\"x\":0,\"y\":22,\"w\":48,\"h\":21,\"i\":\"2\"},\"id\":\"e1d6e010-d320-11e8-b491-d195e4bbf555\",\"panelIndex\":\"2\",\"type\":\"visualization\",\"version\":\"6.4.0\"},{\"embeddableConfig\":{},\"gridData\":{\"x\":29,\"y\":0,\"w\":19,\"h\":22,\"i\":\"4\"},\"id\":\"731ee530-d327-11e8-b491-d195e4bbf555\",\"panelIndex\":\"4\",\"type\":\"visualization\",\"version\":\"6.4.0\"},{\"embeddableConfig\":{},\"gridData\":{\"x\":0,\"y\":0,\"w\":9,\"h\":22,\"i\":\"5\"},\"id\":\"ce6f1400-d61a-11e8-a298-13f8911f0caa\",\"panelIndex\":\"5\",\"type\":\"visualization\",\"version\":\"6.4.0\"}]",
+      "optionsJSON": "{\"darkTheme\":true,\"hidePanelTitles\":false,\"useMargins\":true}",
+      "version": 1,
+      "timeRestore": true,
+      "timeTo": "now",
+      "timeFrom": "now-1y",
+      "refreshInterval": {
+        "pause": true,
+        "value": 5000
+      },
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"language\":\"lucene\",\"query\":\"\"},\"filter\":[]}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
     "_id": "3448cfd0-d3f7-11e8-a298-13f8911f0caa",
     "_type": "dashboard",
     "_source": {
       "title": "Pull Request Open Time",
       "hits": 0,
       "description": "Amount of time pull requests are open for per project and user",
-      "panelsJSON": "[{\"gridData\":{\"x\":0,\"y\":0,\"w\":48,\"h\":21,\"i\":\"1\"},\"version\":\"6.4.0\",\"panelIndex\":\"1\",\"type\":\"visualization\",\"id\":\"22d610b0-d3f6-11e8-a298-13f8911f0caa\",\"embeddableConfig\":{}},{\"gridData\":{\"x\":0,\"y\":21,\"w\":48,\"h\":22,\"i\":\"2\"},\"version\":\"6.4.0\",\"panelIndex\":\"2\",\"type\":\"visualization\",\"id\":\"e34d2720-d3f6-11e8-a298-13f8911f0caa\",\"embeddableConfig\":{}}]",
-      "optionsJSON": "{\"darkTheme\":false,\"useMargins\":true,\"hidePanelTitles\":false}",
+      "panelsJSON": "[{\"gridData\":{\"x\":0,\"y\":23,\"w\":48,\"h\":21,\"i\":\"1\"},\"version\":\"6.4.0\",\"panelIndex\":\"1\",\"type\":\"visualization\",\"id\":\"22d610b0-d3f6-11e8-a298-13f8911f0caa\",\"embeddableConfig\":{}},{\"gridData\":{\"x\":9,\"y\":0,\"w\":39,\"h\":23,\"i\":\"2\"},\"version\":\"6.4.0\",\"panelIndex\":\"2\",\"type\":\"visualization\",\"id\":\"e34d2720-d3f6-11e8-a298-13f8911f0caa\",\"embeddableConfig\":{}},{\"gridData\":{\"x\":0,\"y\":0,\"w\":9,\"h\":23,\"i\":\"3\"},\"version\":\"6.4.0\",\"panelIndex\":\"3\",\"type\":\"visualization\",\"id\":\"ce6f1400-d61a-11e8-a298-13f8911f0caa\",\"embeddableConfig\":{}}]",
+      "optionsJSON": "{\"darkTheme\":true,\"useMargins\":true,\"hidePanelTitles\":false}",
       "version": 1,
       "timeRestore": true,
       "timeTo": "now",
