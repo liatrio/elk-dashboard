@@ -201,6 +201,12 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
           {:query => {'state' => 'ALL'}},
           'handle_branch_response')
 
+      request_async(
+          queue,
+          "rest/api/1.0/projects/%{project}/repos/%{repo}/commits",
+          {:project => parameters[:project], :repo => repo['slug']},
+          {:query => {'state' => 'ALL'}},
+          'handle_commits_response')
       request_count +=1
 
       if request_count > 1
@@ -255,7 +261,7 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
   def handle_branch_response(queue, uri, parameters, response, execution_time)
     body = JSON.parse(response.body)
 
-    @logger.info("Handle Branch Response", :uri => uri, :project => parameters[:project], :repo => parameters[:repo], :start => body['start'], :size => body['size'])
+    #@logger.info("Handle Branch Response", :uri => uri, :project => parameters[:project], :repo => parameters[:repo], :start => body['start'], :size => body['size'])
 
 
     unless body['isLastPage']
@@ -272,7 +278,7 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
 
     # Iterate over each Branch
     body['values'].each { |branch|
-      @logger.info("Add Branch Request", :project => parameters[:project], :repo => parameters[:repo], :branch => branch['id'])
+      #@logger.info("Add Branch Request", :project => parameters[:project], :repo => parameters[:repo], :branch => branch['id'])
 
       # Push Branch event into queue
       event = LogStash::Event.new(branch)
@@ -281,6 +287,35 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
       queue << event
     }
 
+  end
+
+  def handle_commits_response(queue, uri, parameters, response, execution_time)
+
+    body = JSON.parse(response.body)
+    @logger.info("Handle Commits Response", :uri => uri, :project => parameters[:project], :repo => parameters[:repo], :start => body['start'], :size => body['size'])
+
+    unless body['isLastPage']
+      request_async(
+          queue,
+          "rest/api/1.0/projects/%{project}/repos/%{repo}/commits",
+          {:project => parameters[:project], :repo => parameters[:repo]},
+          {:query => {'details' => 'true', 'state' => 'ALL', 'start' => body['nextPageStart']}},
+          'handle_commits_response')
+
+      # Send HTTP requests
+      client.execute!
+    end
+
+    # Iterate over each Commit
+    body['values'].each { |commit|
+      @logger.info("Add Commit Request", :project => parameters[:project], :repo => parameters[:repo], :commit => commit['id'])
+
+      # Push Commit event into queue
+      event = LogStash::Event.new(commit)
+      event.set("[@metadata][index]", "commit")
+      event.set("[@metadata][id]", "#{parameters[:project]}-#{parameters[:repo]}-#{commit['id']}")
+      queue << event
+    }
   end
 
   def handle_failure(queue, path, parameters, exception, execution_time)
