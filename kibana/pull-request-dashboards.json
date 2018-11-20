@@ -1,0 +1,130 @@
+[
+  {
+    "_id": "36d6add0-d3cf-11e8-b491-d195e4bbf555",
+    "_type": "dashboard",
+    "_source": {
+      "title": "Pull Requests",
+      "hits": 0,
+      "description": "Number of pull requests and their state",
+      "panelsJSON": "[{\"embeddableConfig\":{},\"gridData\":{\"x\":9,\"y\":0,\"w\":20,\"h\":22,\"i\":\"1\"},\"id\":\"2c788430-d320-11e8-b491-d195e4bbf555\",\"panelIndex\":\"1\",\"type\":\"visualization\",\"version\":\"6.4.0\"},{\"embeddableConfig\":{},\"gridData\":{\"x\":0,\"y\":22,\"w\":48,\"h\":21,\"i\":\"2\"},\"id\":\"e1d6e010-d320-11e8-b491-d195e4bbf555\",\"panelIndex\":\"2\",\"type\":\"visualization\",\"version\":\"6.4.0\"},{\"embeddableConfig\":{},\"gridData\":{\"x\":29,\"y\":0,\"w\":19,\"h\":22,\"i\":\"4\"},\"id\":\"731ee530-d327-11e8-b491-d195e4bbf555\",\"panelIndex\":\"4\",\"type\":\"visualization\",\"version\":\"6.4.0\"},{\"embeddableConfig\":{},\"gridData\":{\"x\":0,\"y\":0,\"w\":9,\"h\":22,\"i\":\"5\"},\"id\":\"ce6f1400-d61a-11e8-a298-13f8911f0caa\",\"panelIndex\":\"5\",\"type\":\"visualization\",\"version\":\"6.4.0\"}]",
+      "optionsJSON": "{\"darkTheme\":true,\"hidePanelTitles\":false,\"useMargins\":true}",
+      "version": 1,
+      "timeRestore": true,
+      "timeTo": "now",
+      "timeFrom": "now-1y",
+      "refreshInterval": {
+        "pause": true,
+        "value": 5000
+      },
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"language\":\"lucene\",\"query\":\"\"},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "3448cfd0-d3f7-11e8-a298-13f8911f0caa",
+    "_type": "dashboard",
+    "_source": {
+      "title": "Pull Request Open Time",
+      "hits": 0,
+      "description": "Amount of time pull requests are open for per project and user",
+      "panelsJSON": "[{\"gridData\":{\"x\":0,\"y\":23,\"w\":48,\"h\":21,\"i\":\"1\"},\"version\":\"6.4.0\",\"panelIndex\":\"1\",\"type\":\"visualization\",\"id\":\"22d610b0-d3f6-11e8-a298-13f8911f0caa\",\"embeddableConfig\":{}},{\"gridData\":{\"x\":9,\"y\":0,\"w\":39,\"h\":23,\"i\":\"2\"},\"version\":\"6.4.0\",\"panelIndex\":\"2\",\"type\":\"visualization\",\"id\":\"e34d2720-d3f6-11e8-a298-13f8911f0caa\",\"embeddableConfig\":{}},{\"gridData\":{\"x\":0,\"y\":0,\"w\":9,\"h\":23,\"i\":\"3\"},\"version\":\"6.4.0\",\"panelIndex\":\"3\",\"type\":\"visualization\",\"id\":\"ce6f1400-d61a-11e8-a298-13f8911f0caa\",\"embeddableConfig\":{}}]",
+      "optionsJSON": "{\"darkTheme\":true,\"useMargins\":true,\"hidePanelTitles\":false}",
+      "version": 1,
+      "timeRestore": true,
+      "timeTo": "now",
+      "timeFrom": "now-1y",
+      "refreshInterval": {
+        "pause": true,
+        "value": 5000
+      },
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"lucene\"},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "ce6f1400-d61a-11e8-a298-13f8911f0caa",
+    "_type": "visualization",
+    "_source": {
+      "title": "Project / Repo Select",
+      "visState": "{\"title\":\"Project / Repo Select\",\"type\":\"input_control_vis\",\"params\":{\"controls\":[{\"id\":\"1540227075596\",\"indexPattern\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"fieldName\":\"fromRef.repository.project.name.keyword\",\"parent\":\"\",\"label\":\"Project\",\"type\":\"list\",\"options\":{\"type\":\"terms\",\"multiselect\":true,\"dynamicOptions\":true,\"size\":5,\"order\":\"desc\"}},{\"id\":\"1540226962344\",\"indexPattern\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"fieldName\":\"toRef.repository.name.keyword\",\"parent\":\"\",\"label\":\"Repo\",\"type\":\"list\",\"options\":{\"type\":\"terms\",\"multiselect\":true,\"dynamicOptions\":true,\"size\":5,\"order\":\"desc\"}},{\"id\":\"1540227337428\",\"indexPattern\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"fieldName\":\"author.user.name.keyword\",\"parent\":\"\",\"label\":\"Author\",\"type\":\"list\",\"options\":{\"type\":\"terms\",\"multiselect\":true,\"dynamicOptions\":true,\"size\":5,\"order\":\"desc\"}},{\"id\":\"1540227384150\",\"indexPattern\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"fieldName\":\"state.keyword\",\"parent\":\"\",\"label\":\"Pull Request State\",\"type\":\"list\",\"options\":{\"type\":\"terms\",\"multiselect\":true,\"dynamicOptions\":true,\"size\":5,\"order\":\"desc\"}}],\"updateFiltersOnChange\":false,\"useTimeFilter\":false,\"pinFilters\":false},\"aggs\":[]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"lucene\"},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "2c788430-d320-11e8-b491-d195e4bbf555",
+    "_type": "visualization",
+    "_source": {
+      "title": "Pull Request State / Repo + Project",
+      "visState": "{\"title\":\"Pull Request State / Repo + Project\",\"type\":\"pie\",\"params\":{\"type\":\"pie\",\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true,\"labels\":{\"show\":false,\"values\":true,\"last_level\":true,\"truncate\":100}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"toRef.repository.project.key.keyword\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"toRef.repository.name.keyword\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\"}},{\"id\":\"4\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"state.keyword\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\"}}]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"query\":{\"query\":\"\",\"language\":\"lucene\"},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "e1d6e010-d320-11e8-b491-d195e4bbf555",
+    "_type": "visualization",
+    "_source": {
+      "title": "Pull Requests / Repo Timeline",
+      "visState": "{\"title\":\"Pull Requests / Repo Timeline\",\"type\":\"histogram\",\"params\":{\"type\":\"histogram\",\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"truncate\":100},\"title\":{}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Count\"}}],\"seriesParams\":[{\"show\":\"true\",\"type\":\"histogram\",\"mode\":\"stacked\",\"data\":{\"label\":\"Count\",\"id\":\"1\"},\"valueAxis\":\"ValueAxis-1\",\"drawLinesBetweenPoints\":true,\"showCircles\":true}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{}}},{\"id\":\"3\",\"enabled\":true,\"type\":\"significant_terms\",\"schema\":\"group\",\"params\":{\"field\":\"toRef.repository.name.keyword\",\"size\":5,\"customLabel\":\"Repo\"}}]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"query\":{\"query\":\"\",\"language\":\"lucene\"},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "731ee530-d327-11e8-b491-d195e4bbf555",
+    "_type": "visualization",
+    "_source": {
+      "title": "Pull Request State / User",
+      "visState": "{\"title\":\"Pull Request State / User\",\"type\":\"pie\",\"params\":{\"type\":\"pie\",\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true,\"labels\":{\"show\":false,\"values\":true,\"last_level\":true,\"truncate\":100}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"author.user.displayName.keyword\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"state.keyword\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\"}}]}",
+      "uiStateJSON": "{\"vis\":{\"colors\":{\"MERGED\":\"#7EB26D\",\"OPEN\":\"#E24D42\"}}}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"query\":{\"query\":\"\",\"language\":\"lucene\"},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "22d610b0-d3f6-11e8-a298-13f8911f0caa",
+    "_type": "visualization",
+    "_source": {
+      "title": "Pull Request Time / Repo",
+      "visState": "{\"title\":\"Pull Request Time / Repo\",\"type\":\"area\",\"params\":{\"type\":\"area\",\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"truncate\":100},\"title\":{}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Average Pull Request Time (seconds)\"}}],\"seriesParams\":[{\"show\":\"true\",\"type\":\"area\",\"mode\":\"stacked\",\"data\":{\"label\":\"Average Pull Request Time (seconds)\",\"id\":\"1\"},\"drawLinesBetweenPoints\":true,\"showCircles\":true,\"interpolate\":\"linear\",\"valueAxis\":\"ValueAxis-1\"}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"avg\",\"schema\":\"metric\",\"params\":{\"field\":\"time\",\"customLabel\":\"Average Pull Request Time (seconds)\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{}}},{\"id\":\"3\",\"enabled\":true,\"type\":\"significant_terms\",\"schema\":\"group\",\"params\":{\"field\":\"toRef.repository.name.keyword\",\"size\":3}}]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"query\":{\"query\":\"\",\"language\":\"lucene\"},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "e34d2720-d3f6-11e8-a298-13f8911f0caa",
+    "_type": "visualization",
+    "_source": {
+      "title": "Pull Request Open Time / User",
+      "visState": "{\"title\":\"Pull Request Open Time / User\",\"type\":\"pie\",\"params\":{\"type\":\"pie\",\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true,\"labels\":{\"show\":false,\"values\":true,\"last_level\":true,\"truncate\":100}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"top_hits\",\"schema\":\"metric\",\"params\":{\"field\":\"time\",\"aggregate\":\"average\",\"size\":25,\"sortField\":\"@timestamp\",\"sortOrder\":\"desc\",\"customLabel\":\"Time Open\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"author.user.name.keyword\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"_key\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"customLabel\":\"Author\"}}]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"590bba40-d180-11e8-9a9b-e7f297ecf40d\",\"query\":{\"query\":\"\",\"language\":\"lucene\"},\"filter\":[]}"
+      }
+    }
+  }
+]
