@@ -141,7 +141,7 @@ class LogStash::Inputs::Jira < LogStash::Inputs::Base
       # Push project event into queue
       event = LogStash::Event.new(issue)
       event.set('[@metadata][index]', 'issue')
-      event.set('[@metadata][id]', 'jira'+issue['key'])
+      event.set('[@metadata][id]', issue['key'])
       queue << event
     end
 

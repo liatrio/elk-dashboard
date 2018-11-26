@@ -3,6 +3,9 @@ services:
   logstash:
     image: liatrio-logstash
     build: ./logstash
+  logstash-jira:
+    image: liatrio-logstash-jira
+    build: ./logstash-jira
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0
     environment:
