@@ -97,7 +97,7 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
 
     request_options[:headers] = {'Authorization' => @authorization}
 
-    @logger.info("Fetching URL", :method => method, :request => uri)
+   # @logger.info("Fetching URL", :method => method, :request => uri)
 
     client.parallel.send(method, uri, request_options).
         on_success {|response| self.send(callback, queue, uri, parameters, response, Time.now - started)}.
@@ -110,7 +110,8 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
     # Decode JSON
     body = JSON.parse(response.body)
 
-    @logger.info("Handle Projects Response", :uri => uri, :start => body['start'], :size => body['size'])
+    #@logger.info("Handle Projects Response", :uri => uri, :start => body['start'], :size => body['size'])
+    #@logger.info("Response Body", :body => response)
 
     request_count = 0
 
@@ -120,7 +121,7 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
           queue,
           "rest/api/1.0/projects",
           {},
-          {:queue => {'start' => body['nextPageStart']}},
+          {:query => {'start' => body['nextPageStart']}},
           'handle_projects_response'
       )
 
@@ -129,7 +130,7 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
 
     # Iterate over each project
     body['values'].each do |project|
-      @logger.info("Add project", :project => project['key'])
+      #@logger.info("Add project", :project => project['key'])
 
       # Send get repos request
       request_async(
@@ -164,7 +165,7 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
     # Decode JSON
     body = JSON.parse(response.body)
 
-    @logger.info("Handle Repos Response", :uri => uri, :project => parameters[:project], :start => body['start'], :size => body['size'])
+    #@logger.info("Handle Repos Response", :uri => uri, :project => parameters[:project], :start => body['start'], :size => body['size'])
 
     request_count = 0
 
@@ -174,7 +175,7 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
           queue,
           "rest/api/1.0/projects/%{project}/repos",
         {:project => parameters[:project]},
-          {:queue => {'start' => body['nextPageStart']}},
+          {:query => {'start' => body['nextPageStart']}},
           'handle_repos_response'
       )
 
@@ -183,7 +184,7 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
 
     # Iterate over each repo
     body['values'].each { |repo|
-      @logger.info("Add repo", :project => parameters[:project], :repo => repo['slug'])
+     #@logger.info("Add repo", :project => parameters[:project], :repo => repo['slug'])
 
       # Send get pull requests request
       request_async(
@@ -192,7 +193,20 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
           {:project => parameters[:project], :repo => repo['slug']},
           {:query => {'state' => 'ALL'}},
           'handle_pull_requests_response')
+      # Semd Branch requests request
+      request_async(
+          queue,
+          "rest/api/1.0/projects/%{project}/repos/%{repo}/branches",
+          {:project => parameters[:project], :repo => repo['slug']},
+          {:query => {'state' => 'ALL'}},
+          'handle_branch_response')
 
+      request_async(
+          queue,
+          "rest/api/1.0/projects/%{project}/repos/%{repo}/commits",
+          {:project => parameters[:project], :repo => repo['slug']},
+          {:query => {'state' => 'ALL'}},
+          'handle_commits_response')
       request_count +=1
 
       if request_count > 1
@@ -217,7 +231,7 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
     # Decode JSON
     body = JSON.parse(response.body)
 
-    @logger.info("Handle Pull Requests Response", :uri => uri, :project => parameters[:project], :repo => parameters[:repo], :start => body['start'], :size => body['size'])
+    #@logger.info("Handle Pull Requests Response", :uri => uri, :project => parameters[:project], :repo => parameters[:repo], :start => body['start'], :size => body['size'])
 
     # Fetch addition pull request pages
     unless body['isLastPage']
@@ -234,12 +248,72 @@ class LogStash::Inputs::Bitbucket < LogStash::Inputs::Base
 
     # Iterate over each pull request
     body['values'].each { |pull_request|
-      @logger.info("Add Pull Request", :project => parameters[:project], :repo => parameters[:repo], :pull_request => pull_request['title'])
+      #@logger.info("Add Pull Request", :project => parameters[:project], :repo => parameters[:repo], :pull_request => pull_request['title'])
 
       # Push repo event into queue
       event = LogStash::Event.new(pull_request)
       event.set("[@metadata][index]", "pull_request")
-      event.set("[@metadata][id]", "#{pull_request['toRef']['repository']['project']['id']}-#{pull_request['toRef']['repository']['id']}-#{pull_request['id']}")
+      event.set("[@metadata][id]", "#{parameters[:project]}-#{parameters[:repo]}-#{pull_request['id']}")
+      queue << event
+    }
+  end
+
+  def handle_branch_response(queue, uri, parameters, response, execution_time)
+    body = JSON.parse(response.body)
+
+    #@logger.info("Handle Branch Response", :uri => uri, :project => parameters[:project], :repo => parameters[:repo], :start => body['start'], :size => body['size'])
+
+
+    unless body['isLastPage']
+      request_async(
+          queue,
+          "rest/api/1.0/projects/%{project}/repos/%{repo}/branches",
+          {:project => parameters[:project], :repo => parameters[:repo]},
+          {:query => {'details' => 'true', 'state' => 'ALL', 'start' => body['nextPageStart']}},
+          'handle_branch_response')
+
+      # Send HTTP requests
+      client.execute!
+    end
+
+    # Iterate over each Branch
+    body['values'].each { |branch|
+      #@logger.info("Add Branch Request", :project => parameters[:project], :repo => parameters[:repo], :branch => branch['id'])
+
+      # Push Branch event into queue
+      event = LogStash::Event.new(branch)
+      event.set("[@metadata][index]", "branch")
+      event.set("[@metadata][id]", "#{parameters[:project]}-#{parameters[:repo]}-#{branch['id']}")
+      queue << event
+    }
+
+  end
+
+  def handle_commits_response(queue, uri, parameters, response, execution_time)
+
+    body = JSON.parse(response.body)
+    @logger.info("Handle Commits Response", :uri => uri, :project => parameters[:project], :repo => parameters[:repo], :start => body['start'], :size => body['size'])
+
+    unless body['isLastPage']
+      request_async(
+          queue,
+          "rest/api/1.0/projects/%{project}/repos/%{repo}/commits",
+          {:project => parameters[:project], :repo => parameters[:repo]},
+          {:query => {'details' => 'true', 'state' => 'ALL', 'start' => body['nextPageStart']}},
+          'handle_commits_response')
+
+      # Send HTTP requests
+      client.execute!
+    end
+
+    # Iterate over each Commit
+    body['values'].each { |commit|
+      @logger.info("Add Commit Request", :project => parameters[:project], :repo => parameters[:repo], :commit => commit['id'])
+
+      # Push Commit event into queue
+      event = LogStash::Event.new(commit)
+      event.set("[@metadata][index]", "commit")
+      event.set("[@metadata][id]", "#{parameters[:project]}-#{parameters[:repo]}-#{commit['id']}")
       queue << event
     }
   end

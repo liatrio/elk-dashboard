@@ -11,3 +11,9 @@ services:
     build: ./logstash-jenkins
     volumes: 
       - ./logstash/pipeline/:/usr/share/logstash-jenkins/pipeline/
+  logstash-jira:
+    image: liatrio-logstash-jira
+    build: ./logstash-jira
+    volumes: 
+      - ./logstash-jira/pipeline/:/usr/share/logstash/pipeline/
+      - ./logstash-jira/plugins/:/usr/share/logstash/plugins/
