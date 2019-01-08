@@ -10,7 +10,7 @@ services:
     image: liatrio-logstash-jira
     build: ./logstash-jira
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.5.4
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -30,14 +30,6 @@ services:
       - 5601:5601
     environment:
       ELASTICSEARCH_URL: http://elasticsearch:9200
-  jenkins:
-    image: jenkins/jenkins
-    ports:
-      - 8080:8080
-    environment:
-      - "JAVA_OPTS=-Dorg.apache.commons.jelly.tags.fmt.timeZone=America/Los_Angeles"
-    volumes:
-      - jenkinsdata:/var/jenkins_home
 
 volumes:
   esdata1:

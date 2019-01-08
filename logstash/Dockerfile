@@ -1,4 +1,4 @@
-FROM docker.elastic.co/logstash/logstash:6.4.0
+FROM docker.elastic.co/logstash/logstash:6.5.4
 
 USER root
 
@@ -16,6 +16,7 @@ ADD --chown=logstash plugins /usr/share/logstash/plugins
 WORKDIR /usr/share/logstash/plugins/logstash-input-bitbucket
 RUN bundler install 
 RUN gem build /usr/share/logstash/plugins/logstash-input-bitbucket/logstash-input-bitbucket.gemspec
-RUN logstash-plugin install /usr/share/logstash/plugins/logstash-input-bitbucket/logstash-input-bitbucket-*.gem
 
 WORKDIR /usr/share/logstash
+RUN env
+RUN logstash-plugin install /usr/share/logstash/plugins/logstash-input-bitbucket/logstash-input-bitbucket-*.gem
