@@ -1,4 +1,4 @@
 .idea
 logstash/plugins/*/*.gem
-# Gemfile.lock
+Gemfile.lock
 .DS_Store
