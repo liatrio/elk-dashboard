@@ -1,0 +1,27 @@
+{
+  "index_patterns": ["pull_request*"],
+  "settings": {
+  },
+  "mappings": {
+    "doc": {
+      "dynamic": false,
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "@version": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "createdDate": { "type" : "date" },
+        "updatedDate": { "type" : "date" },
+        "closedDate": { "type" : "date" }
+      }
+    }
+  }
+}

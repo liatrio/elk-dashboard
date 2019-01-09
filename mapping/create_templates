@@ -1,0 +1,3 @@
+#!/bin/sh
+
+curl -X PUT localhost:9200/_template/pull_request -H 'Content-Type: application/json' --data "@./pull_request.json"
