@@ -1,3 +1,11 @@
 #!/bin/sh
 
+curl -X PUT localhost:9200/_template/project -H 'Content-Type: application/json' --data "@./project.json"
+curl -X PUT localhost:9200/_template/repo -H 'Content-Type: application/json' --data "@./repo.json"
 curl -X PUT localhost:9200/_template/pull_request -H 'Content-Type: application/json' --data "@./pull_request.json"
+curl -X PUT localhost:9200/_template/branch -H 'Content-Type: application/json' --data "@./branch.json"
+curl -X PUT localhost:9200/_template/commit -H 'Content-Type: application/json' --data "@./commit.json"
+
+curl -X PUT localhost:9200/_template/build -H 'Content-Type: application/json' --data "@./build.json"
+
+curl -X PUT localhost:9200/_template/issue -H 'Content-Type: application/json' --data "@./issue.json"

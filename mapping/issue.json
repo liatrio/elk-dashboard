@@ -1,5 +1,5 @@
 {
-  "index_patterns": ["pull_request-v*"],
+  "index_patterns": ["issue-v*"],
   "settings": {
   },
   "mappings": {
@@ -17,10 +17,7 @@
               "ignore_above": 256
             }
           }
-        },
-        "createdDate": { "type" : "date" },
-        "updatedDate": { "type" : "date" },
-        "closedDate": { "type" : "date" }
+        }
       }
     }
   }
