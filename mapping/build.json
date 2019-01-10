@@ -22,6 +22,15 @@
           "properties": {
             "buildDuration": {
               "type": "long"
+            },
+            "projectName": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
             }
           }
         }
