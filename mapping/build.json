@@ -17,6 +17,13 @@
               "ignore_above": 256
             }
           }
+        },
+        "data": {
+          "properties": {
+            "buildDuration": {
+              "type": "long"
+            }
+          }
         }
       }
     }
