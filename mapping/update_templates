@@ -9,3 +9,5 @@ curl -X PUT localhost:9200/_template/commit -H 'Content-Type: application/json' 
 curl -X PUT localhost:9200/_template/build -H 'Content-Type: application/json' --data "@./build.json"
 
 curl -X PUT localhost:9200/_template/issue -H 'Content-Type: application/json' --data "@./issue.json"
+
+curl -X PUT localhost:9200/_template/team -H 'Content-Type: application/json' --data "@./team.json"
