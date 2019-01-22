@@ -1,0 +1,70 @@
+{
+  "index_patterns": ["lead_time-v*"],
+  "settings": {
+  },
+  "mappings": {
+    "doc": {
+      "dynamic": false,
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "@version": {
+          "type": "keyword"
+        },
+        "created_at": {
+          "type": "date"
+        },
+        "started_at": {
+          "type": "date"
+        },
+        "issue": {
+          "type": "keyword"
+        },
+        "builds": {
+          "type": "nested",
+          "properties": {
+            "artifact": {
+              "properties": {
+                "id": {
+                  "type": "keyword"
+                },
+                "group": {
+                  "type": "keyword"
+                },
+                "name": {
+                  "type": "keyword"
+                },
+                "version": {
+                  "type": "keyword"
+                },
+                "packaging": {
+                  "type": "keyword"
+                }
+            },
+            "result": {
+              "type": "keyword"
+            },
+            "built_at": {
+              "type": "date"
+            }
+          }
+        },
+        "deploys": {
+          "type": "nested",
+          "properties": {
+            "environment": {
+              "type": "keyword"
+            },
+            "result": {
+              "type": "keyword"
+            },
+            "completed_at": {
+              "type": "date"
+            }
+          }
+        }
+      }
+    }
+  }
+}
