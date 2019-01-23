@@ -1,8 +1,8 @@
 version: '2.2'
 services:
-  logstash:
-    image: liatrio-logstash
-    build: ./logstash
+  logstash-bitbucket:
+    image: liatrio-logstash-bitbucket
+    build: ./logstash-bitbucket
   logstash-jenkins:
     image: liatrio-logstash-jenkins
     build: ./logstash-jenkins
