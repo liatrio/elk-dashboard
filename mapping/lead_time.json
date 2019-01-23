@@ -21,6 +21,9 @@
         "issue": {
           "type": "keyword"
         },
+        "repo_url": {
+          "type": "keyword"
+        },
         "builds": {
           "type": "nested",
           "properties": {
@@ -41,6 +44,7 @@
                 "packaging": {
                   "type": "keyword"
                 }
+              }
             },
             "result": {
               "type": "keyword"
