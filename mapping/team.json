@@ -1,0 +1,56 @@
+{
+  "index_patterns": ["team-v*"],
+  "settings": {
+  },
+  "mappings": {
+    "doc": {
+      "dynamic": false,
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "@version": {
+          "type": "keyword"
+        },
+        "name": {
+          "type": "keyword"
+        },
+        "users": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "emails": {
+              "type": "nested",
+              "properties": {
+                "email": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "projects": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "repos": {
+              "type": "nested",
+              "properties": {
+                "id": {
+                  "type": "keyword"
+                },
+                "url": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
