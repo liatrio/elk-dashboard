@@ -11,7 +11,7 @@ RUN gem install bundler
 
 ADD --chown=logstash config /usr/share/logstash/config
 ADD --chown=logstash pipeline /usr/share/logstash/pipeline
-ADD --chown=logstash plugins /usr/share/logstash/plugins
+RUN git clone https://github.com/liatrio/logstash-input-bitbucket.git /usr/share/logstash/plugins/logstash-input-bitbucket
 
 WORKDIR /usr/share/logstash/plugins/logstash-input-bitbucket
 RUN bundler install 
