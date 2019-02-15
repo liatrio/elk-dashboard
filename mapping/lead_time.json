@@ -24,6 +24,36 @@
         "repo_url": {
           "type": "keyword"
         },
+        "dev": {
+          "properties": {
+            "total_time": {
+              "type": "integer"
+            },
+            "progress_time": {
+              "type": "integer"
+            }
+          }
+        },
+        "qa": {
+          "properties": {
+            "total_time": {
+              "type": "integer"
+            },
+            "progress_time": {
+              "type": "integer"
+            }
+          }
+        },
+        "prod": {
+          "properties": {
+            "total_time": {
+              "type": "integer"
+            },
+            "progress_time": {
+              "type": "integer"
+            }
+          }
+        },
         "builds": {
           "type": "nested",
           "properties": {
