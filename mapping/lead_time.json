@@ -65,6 +65,12 @@
             },
             "completed_at": {
               "type": "date"
+            },
+            "total_time": {
+              "type": "integer"
+            },
+            "progress_time": {
+              "type": "integer"
             }
           }
         }
