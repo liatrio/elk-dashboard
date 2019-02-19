@@ -9,12 +9,26 @@
         "@timestamp": {
           "type": "date"
         },
-        "@version": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
+        "links": {
+          "properties": {
+            "clone": {
+              "type": "nested",
+              "properties": {
+                "href": {
+                  "type": "keyword"
+                },
+                "name": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "self": {
+              "type": "nested",
+              "properties": {
+                "href": {
+                  "type": "keyword"
+                }
+              }
             }
           }
         }
