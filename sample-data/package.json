@@ -2,6 +2,7 @@
     "name": "dashboard-sample-data",
     "version": "0.0.1",
     "dependencies": {
+        "crypto": "^1.0.1",
         "elasticsearch": "^15.4.1"
     }
 }

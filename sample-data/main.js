@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const elasticsearch = require('elasticsearch');
 const client = new elasticsearch.Client({
   host: 'localhost:9200',
@@ -63,6 +65,10 @@ async function run() {
     let started_at = dev_completed_at - Math.floor(Math.random() * 604800); // 7 days
     let created_at = started_at - Math.floor(Math.random() * 604800); // 7 days
 
+    let commit1 = crypto.createHash('sha1').update(Date.now() + Math.random().toString()).digest('hex');
+    let commit2 = crypto.createHash('sha1').update(Date.now() + Math.random().toString()).digest('hex');
+    let commit3 = crypto.createHash('sha1').update(Date.now() + Math.random().toString()).digest('hex');
+
     await client.index({
       index: 'lead_time',
       type: 'doc',
@@ -83,6 +89,11 @@ async function run() {
           total_time: prod_completed_at - created_at,
           progress_time: prod_completed_at - started_at,
         },
+        commits: [
+          {id: commit1},
+          {id: commit2},
+          {id: commit3},
+        ],
         deploys:
         [{
           environment: 'production',
