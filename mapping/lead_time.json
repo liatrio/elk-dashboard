@@ -21,8 +21,13 @@
         "issue": {
           "type": "keyword"
         },
-        "repo_url": {
-          "type": "keyword"
+        "commits": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            }
+          }
         },
         "dev": {
           "properties": {
