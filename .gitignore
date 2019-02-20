@@ -2,3 +2,5 @@
 logstash/plugins/*/*.gem
 Gemfile.lock
 .DS_Store
+node_modules
+package-lock.json
