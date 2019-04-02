@@ -1,19 +1,20 @@
 version: '2.2'
 services:
-  logstash:
-    image: liatrio-logstash
-    build: ./logstash
-    volumes: 
-      - ./logstash/pipeline/:/usr/share/logstash/pipeline/
-      - ./logstash/plugins/:/usr/share/logstash/plugins/
+#  logstash:
+#  image: liatrio-logstash-bitbucket
+#    build: ./logstash-bitbucket
+#    volumes: 
+#      - ./logstash-bitbucket/pipeline/:/usr/share/logstash/pipeline/
+#      - ./logstash-bitbucket/plugins/:/usr/share/logstash/plugins/
   logstash-jenkins:
     image: liatrio-logstash-jenkins
     build: ./logstash-jenkins
     volumes: 
-      - ./logstash/pipeline/:/usr/share/logstash-jenkins/pipeline/
-  logstash-jira:
-    image: liatrio-logstash-jira
-    build: ./logstash-jira
-    volumes: 
-      - ./logstash-jira/pipeline/:/usr/share/logstash/pipeline/
-      - ./logstash-jira/plugins/:/usr/share/logstash/plugins/
+      - ./logstash-jenkins/pipeline/:/usr/share/logstash/pipeline/
+      - ./logstash-jenkins/plugins/:/usr/share/logstash/plugins/
+#  logstash-jira:
+#    image: liatrio-logstash-jira
+#    build: ./logstash-jira
+#    volumes: 
+#      - ./logstash-jira/pipeline/:/usr/share/logstash/pipeline/
+#      - ./logstash-jira/plugins/:/usr/share/logstash/plugins/
