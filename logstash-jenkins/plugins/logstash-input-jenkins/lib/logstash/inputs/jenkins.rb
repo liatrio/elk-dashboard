@@ -8,7 +8,7 @@ require "pp"
 require "date"
 
 # This plugin utilizes Jenkins' Logstash plugin linked here:
-#   https://wiki.jenkins.io/display/JENKINS/Logstash+Plugin
+#   https://wiki.jenkins.io/display/JENKINS/Logstash+Plugi ntssdsff
 # The plugin will interpret the Jenkins logs sent to logstash and interpret them according to
 # our elasticsearch structure. We currently determine whether or not a project built from a repository
 # is a 'build' or 'deploy' job. The plugin then links the a job that has been ran with a corresponding
@@ -32,7 +32,7 @@ class LogStash::Inputs::Jenkins < LogStash::Inputs::Http
   # Password for basic authorization
   config :password, :validate => :password, :required => false
   
-  config :elastic_port, :validate => :number, :default => 9200
+  config :elastic_port, :validate => :number, :default => 80
   
   config :elastic_host, :validate => :string, :default => '192.168.0.27'
   
@@ -190,7 +190,7 @@ class LogStash::Inputs::Jenkins < LogStash::Inputs::Http
     content_type = headers.fetch("content_type", "")
     codec = additional_codecs.fetch(HttpUtil.getMimeType(content_type), default_codec)
     
-    client = Elasticsearch::Client.new(:hosts => "#{@elastic_scheme}://#{@elastic_host}:#{@elastic_port}")
+    client = Elasticsearch::Client.new(:hosts => "#{@elastic_host}")
     
     #decode the body to get the relevant info we want from JSON from jenkins
     body_obj = JSON.parse(body)
